@@ -4596,8 +4596,9 @@
     return `z${((num - 5 + 1) % 3) + 5}`;
   }
 
-  // ドラの合計翻数（手牌＋鳴きにあるドラ牌の枚数を集計）
-  function calcDoraHans(indicators, hand14, meldList) {
+  // ドラの合計翻数（手牌＋鳴き＋抜きドラ北 にあるドラ牌の枚数を集計）
+  // 表示牌が西（z3）のとき target は北（z4）になり、抜いた北もドラとして加算
+  function calcDoraHans(indicators, hand14, meldList, kitaCount) {
     if (!hand14) return 0;
     let total = 0;
     indicators.forEach(d => {
@@ -4608,6 +4609,7 @@
       meldList.forEach(m => {
         if (m.tile === target) cnt += (m.type === 'pon') ? 3 : 4;
       });
+      if (target === 'z4' && kitaCount) cnt += kitaCount;
       total += cnt;
     });
     return total;
@@ -4815,14 +4817,14 @@
         result.totalHan += flags.akaCount;
       }
       // ドラ
-      const doraTotal = calcDoraHans(dora, selectedHand14, flags.melds || []);
+      const doraTotal = calcDoraHans(dora, selectedHand14, flags.melds || [], flags.kitaCount || 0);
       if (doraTotal > 0) {
         result.yakus.push({name:'ドラ', value: doraTotal});
         result.totalHan += doraTotal;
       }
       // 裏ドラ（立直時のみ）
       if (flags.riichi || flags.double_riichi) {
-        const uraTotal = calcDoraHans(uradora, selectedHand14, flags.melds || []);
+        const uraTotal = calcDoraHans(uradora, selectedHand14, flags.melds || [], flags.kitaCount || 0);
         if (uraTotal > 0) {
           result.yakus.push({name:'裏ドラ', value: uraTotal});
           result.totalHan += uraTotal;
