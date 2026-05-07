@@ -1250,7 +1250,7 @@
     <!-- Portal タブバー -->
     <div class="portal-tabs-bar">
         <button class="portal-tab-btn active" data-tab="scoresheet" onclick="switchPortalTab('scoresheet')">📊 スコアシート</button>
-        <button class="portal-tab-btn" data-tab="checker" onclick="switchPortalTab('checker')">🔍 待ち牌チェッカー</button>
+        <button class="portal-tab-btn" data-tab="checker" onclick="switchPortalTab('checker')">🔍 チェッカー</button>
     </div>
 
     <!-- パスワード保護のオーバーレイ -->
@@ -1834,7 +1834,7 @@
     <!-- ===== タブ: スコアシート ===== -->
     <div id="portal-tab-scoresheet">
     <div class="container" id="mainContainer" style="display: none;">
-        <h1>🀄 麻雀スコアシート 🀄</h1>
+        <h1>📊 スコアシート 📊</h1>
         <h2 style="text-align:center; color:#2d5016; margin-bottom:15px; font-size:18px;">〜 Tリーグ専用 〜</h2>
 
         <!-- 順位表 -->
@@ -2019,7 +2019,7 @@
     <div id="portal-tab-checker" style="display:none;">
   <div class="container">
     <div class="header">
-      <h1>🔍 麻雀チェッカー 🔍</h1>
+      <h1>🔍 チェッカー 🔍</h1>
       <div class="usage-box">
         <div class="usage-title">📖 使い方</div>
         <ul class="usage-list">
@@ -4861,7 +4861,11 @@
     if (wasResultHidden) scrollToResultBottom();
   }
 
-  init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 </script>
     <!-- ===== Portal タブ切替ロジック ===== -->
     <script>
@@ -4874,6 +4878,7 @@
             document.querySelectorAll('.portal-tab-btn').forEach(b => {
                 b.classList.toggle('active', b.dataset.tab === name);
             });
+            window.scrollTo(0, 0);
         }
     </script>
 </body>
