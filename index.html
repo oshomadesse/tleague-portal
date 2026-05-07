@@ -4861,10 +4861,20 @@
     if (wasResultHidden) scrollToResultBottom();
   }
 
+  window.__checkerInit = function() {
+    try {
+      const manTiles = document.getElementById('man-tiles');
+      if (manTiles && manTiles.children.length > 0) return;
+      init();
+    } catch (e) {
+      console.error('Checker init failed:', e);
+      alert('チェッカー初期化エラー: ' + (e && e.message ? e.message : e));
+    }
+  };
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', window.__checkerInit);
   } else {
-    init();
+    window.__checkerInit();
   }
 </script>
     <!-- ===== Portal タブ切替ロジック ===== -->
@@ -4879,6 +4889,9 @@
                 b.classList.toggle('active', b.dataset.tab === name);
             });
             window.scrollTo(0, 0);
+            if (name === 'checker' && typeof window.__checkerInit === 'function') {
+                window.__checkerInit();
+            }
         }
     </script>
 </body>
