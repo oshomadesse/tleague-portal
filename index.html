@@ -4880,7 +4880,6 @@
 </script>
     <!-- ===== Portal タブ切替ロジック ===== -->
     <script>
-        const PORTAL_VERSION = 'v4';
         function switchPortalTab(name) {
             const tabs = ['scoresheet', 'checker'];
             tabs.forEach(t => {
@@ -4891,37 +4890,10 @@
                 b.classList.toggle('active', b.dataset.tab === name);
             });
             window.scrollTo(0, 0);
-            if (name === 'checker') {
-                if (typeof window.__checkerInit === 'function') {
-                    window.__checkerInit();
-                }
-                setTimeout(() => {
-                    const tab = document.getElementById('portal-tab-checker');
-                    const cont = tab ? tab.querySelector('.container') : null;
-                    const grid = document.getElementById('man-tiles');
-                    const tabCS = tab ? getComputedStyle(tab) : null;
-                    const contCS = cont ? getComputedStyle(cont) : null;
-                    const dbg = document.getElementById('portal-debug');
-                    if (dbg) {
-                        dbg.innerHTML =
-                            '[' + PORTAL_VERSION + '] '
-                            + 'tab: disp=' + (tabCS?.display) + ' h=' + (tab?.offsetHeight) + 'px<br>'
-                            + 'cont: disp=' + (contCS?.display) + ' h=' + (cont?.offsetHeight) + 'px vis=' + (contCS?.visibility) + '<br>'
-                            + 'grid: h=' + (grid?.offsetHeight) + 'px ch=' + (grid?.children.length);
-                    }
-                }, 50);
+            if (name === 'checker' && typeof window.__checkerInit === 'function') {
+                window.__checkerInit();
             }
         }
-        document.addEventListener('DOMContentLoaded', function() {
-            const bar = document.querySelector('.portal-tabs-bar');
-            if (bar) {
-                const dbg = document.createElement('div');
-                dbg.id = 'portal-debug';
-                dbg.style.cssText = 'max-width:600px;margin:0 auto 8px;padding:6px 10px;background:#fff8e1;border:1px solid #c41e3a;border-radius:6px;font-size:11px;color:#c41e3a;font-family:monospace;line-height:1.4;';
-                dbg.textContent = '[' + PORTAL_VERSION + '] ready. __checkerInit=' + typeof window.__checkerInit;
-                bar.parentNode.insertBefore(dbg, bar.nextSibling);
-            }
-        });
     </script>
 </body>
 </html>
