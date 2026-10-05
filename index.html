@@ -3525,7 +3525,7 @@
             const prefix = nsYMPrefix(t.y, t.m);
             const status = [0, 1, 2].map(i => {
                 const answered = nsSchedule.avail[i].some(d => d.startsWith(prefix));
-                return `${nsShort(i)}${answered ? '✅' : '⏳'}`;
+                return `${['西方', '高橋', '大田'][i]}${answered ? '✅' : '⏳'}`;
             }).join('　');
             document.getElementById('nsStatus').textContent = `${t.m + 1}月の回答状況: ${status}`;
 
