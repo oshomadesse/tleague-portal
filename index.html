@@ -1244,6 +1244,57 @@
     }
     .yaku-error ul { margin: 0 0 0 1.2em; padding: 0; }
     .yaku-error li { line-height: 1.5; margin: 2px 0; }
+
+        /* ===== 次回日程 (ns-) ===== */
+        .ns-meta { font-size: 14px; color: #333; margin-bottom: 10px; }
+        .ns-label { font-size: 13px; color: #2d5016; font-weight: bold; margin-bottom: 6px; }
+        .ns-players { display: flex; gap: 6px; margin-bottom: 12px; }
+        .ns-player-btn {
+            flex: 1; padding: 8px 4px; font-size: 13px; border-radius: 10px;
+            border: 2px solid #2d5016; background: white; color: #2d5016;
+            cursor: pointer; white-space: nowrap; font-weight: 600;
+        }
+        .ns-player-btn.active { background: #2d5016; color: white; }
+        .ns-links { display: flex; gap: 8px; margin-bottom: 12px; }
+        .ns-link-btn {
+            flex: 1; display: block; text-align: center; text-decoration: none;
+            padding: 10px 6px; border-radius: 10px; font-size: 13px; font-weight: 600; color: white;
+        }
+        .ns-link-timetree { background: #3cba5c; }
+        .ns-link-google { background: #4285f4; }
+        .ns-cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .ns-cal-title { font-size: 17px; font-weight: bold; color: #2d5016; }
+        .ns-nav-btn {
+            background: white; border: 2px solid #2d5016; color: #2d5016; border-radius: 8px;
+            width: 40px; height: 34px; font-size: 16px; cursor: pointer;
+        }
+        .ns-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+        .ns-dow { text-align: center; font-size: 12px; font-weight: bold; color: #333; padding: 2px 0; }
+        .ns-dow.sat, .ns-day.sat .ns-num { color: #1e5bc6; }
+        .ns-dow.sun, .ns-day.sun .ns-num { color: #c41e3a; }
+        .ns-day {
+            background: white; border: 1px solid #c8d8c0; border-radius: 6px; min-height: 52px;
+            padding: 3px 1px; text-align: center; cursor: pointer; user-select: none;
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+        }
+        .ns-day.empty { background: transparent; border: none; cursor: default; }
+        .ns-day.past { background: #eee; cursor: default; opacity: 0.55; }
+        .ns-num {
+            font-size: 14px; font-weight: bold; width: 26px; height: 26px; line-height: 22px;
+            border-radius: 50%; border: 2px solid transparent; box-sizing: border-box;
+        }
+        .ns-day.mine .ns-num { border-color: #c41e3a; }
+        .ns-day.all { background: #fff4c2; border-color: #e0b400; }
+        .ns-day.decided { background: #ffd54f; border: 2px solid #c41e3a; }
+        .ns-day.held { background: #d7ecd0; opacity: 1; }
+        .ns-marks { font-size: 10px; line-height: 1; letter-spacing: -1px; min-height: 10px; }
+        .ns-legend { font-size: 11px; color: #555; margin-top: 6px; }
+        .ns-status { margin-top: 12px; font-size: 13px; color: #333; }
+        .ns-result {
+            margin-top: 10px; padding: 12px; border-radius: 10px; background: white;
+            border: 2px solid #2d5016; text-align: center; font-weight: bold; color: #2d5016; font-size: 15px;
+        }
+        .ns-result.decided { background: #fff4c2; border-color: #c41e3a; color: #c41e3a; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -1715,6 +1766,7 @@
                         const data = await res.json();
                         console.log('データ取得成功:', data);
                         sections = data?.sections || [];
+                        nsApplyServerSchedule(data?.schedule);
 
                         // 初回利用の場合は空なら第1節を作る
                         if (sections.length === 0) {
@@ -2013,6 +2065,30 @@
         <button class="btn" onclick="calcFinalPoints()">チェック</button>
         <div id="finalPointsResult" style="margin-top:15px;"></div>
         </div>
+
+        <!-- 次回日程 -->
+        <div class="section" id="nextScheduleSection">
+            <h3 class="section-title">
+                <span>📅 次回日程</span>
+                <button class="ios-button" onclick="refreshData()">更新</button>
+            </h3>
+            <div class="ns-meta" id="nsLastHeld"></div>
+            <div class="ns-label">回答する人</div>
+            <div class="ns-players" id="nsPlayers"></div>
+            <div class="ns-links">
+                <a class="ns-link-btn ns-link-timetree" id="nsTimeTreeLink" href="https://timetreeapp.com/" target="_blank" rel="noopener">TimeTreeを開く</a>
+                <a class="ns-link-btn ns-link-google" id="nsGoogleLink" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener">Googleカレンダーを開く</a>
+            </div>
+            <div class="ns-cal-header">
+                <button class="ns-nav-btn" onclick="nsMoveMonth(-1)">◀</button>
+                <span class="ns-cal-title" id="nsCalTitle"></span>
+                <button class="ns-nav-btn" onclick="nsMoveMonth(1)">▶</button>
+            </div>
+            <div class="ns-grid" id="nsGrid"></div>
+            <div class="ns-legend">行ける日をタップで○（もう一度タップで解除）／黄色 = 全員○</div>
+            <div class="ns-status" id="nsStatus"></div>
+            <div class="ns-result" id="nsResult"></div>
+        </div>
     </div>
     </div>
     <!-- ===== タブ: 待牌チェッカー ===== -->
@@ -2192,6 +2268,7 @@
         
             const data = await res.json();
             sections = data?.sections || [];
+            nsApplyServerSchedule(data?.schedule);
         
             // ③ 初回利用の場合は空なら第1節を作る
             if (sections.length === 0) {
@@ -2208,13 +2285,20 @@
         // Cloudflare Worker へデータ保存
         // -------------------------
         async function saveData() {
+            // 次回日程は他の人が更新している可能性があるので、最新を取ってから一緒に保存
+            try {
+                const latest = await nsFetchLatest();
+                nsApplyServerSchedule(latest?.schedule, true);
+            } catch (e) {
+                console.warn('次回日程の最新取得に失敗', e);
+            }
             const res = await fetch(API_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "x-access-token": API_TOKEN
                 },
-                body: JSON.stringify({ sections })
+                body: JSON.stringify({ sections, schedule: nsSchedule })
             });
         
             if (res.status !== 200) {
@@ -3219,6 +3303,242 @@
         
         // ページ読み込み時にデータを読み込む
         // 最新データを手動で取得（更新ボタン用）
+        // ==========================
+        // 次回日程
+        // ==========================
+        const NS_INITIAL_LAST_DATE = '2026-10-31'; // 初回の前回開催日
+        const NS_PLAYER_KEY = 'tleague_ns_player';
+        let nsSchedule = { lastDate: NS_INITIAL_LAST_DATE, avail: { 0: [], 1: [], 2: [] } };
+        let nsMyPending = null;      // 保存待ちの自分の○（サーバー反映前に上書きされないように）
+        let nsViewYM = null;         // 表示中の年月 {y, m(0-11)}
+        let nsSaveTimer = null;
+        let nsMe = (() => {
+            try {
+                const v = localStorage.getItem(NS_PLAYER_KEY);
+                return v === null ? null : Number(v);
+            } catch (e) { return null; }
+        })();
+
+        function nsFmt(y, m, d) {
+            return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        }
+        function nsParse(str) {
+            const [y, m, d] = str.split('-').map(Number);
+            return { y, m: m - 1, d };
+        }
+        function nsTodayStr() {
+            const t = new Date();
+            return nsFmt(t.getFullYear(), t.getMonth(), t.getDate());
+        }
+        function nsNextMonth(y, m) {
+            return m === 11 ? { y: y + 1, m: 0 } : { y, m: m + 1 };
+        }
+        function nsYMPrefix(y, m) {
+            return `${y}-${String(m + 1).padStart(2, '0')}`;
+        }
+        function nsLabel(str) {
+            const { y, m, d } = nsParse(str);
+            const w = '日月火水木金土'[new Date(y, m, d).getDay()];
+            return `${y}/${m + 1}/${d}(${w})`;
+        }
+        const NS_SHORT = ['🛡️西方', '🐺高橋', '🐲大田'];
+        const NS_EMOJI = ['🛡️', '🐺', '🐲'];
+        function nsShort(i) { return NS_SHORT[i]; }
+        function nsEmoji(i) { return NS_EMOJI[i]; }
+
+        function nsNormalize(raw) {
+            const out = { lastDate: NS_INITIAL_LAST_DATE, avail: { 0: [], 1: [], 2: [] } };
+            if (raw && typeof raw === 'object') {
+                if (typeof raw.lastDate === 'string') out.lastDate = raw.lastDate;
+                for (let i = 0; i < 3; i++) {
+                    const a = raw.avail && raw.avail[i];
+                    if (Array.isArray(a)) out.avail[i] = a.filter(v => typeof v === 'string');
+                }
+            }
+            return out;
+        }
+
+        // サーバーの日程を取り込む（保存待ちの自分の○は残す）
+        function nsApplyServerSchedule(raw) {
+            nsSchedule = nsNormalize(raw);
+            if (nsMe !== null && nsMyPending) {
+                nsSchedule.avail[nsMe] = nsMyPending.slice();
+            }
+            renderNextSchedule();
+        }
+
+        // 指定月で全員○の最も早い日（1日も○がない人は未回答扱い）
+        function nsDecide(y, m) {
+            const prefix = nsYMPrefix(y, m);
+            const lists = [0, 1, 2].map(i => nsSchedule.avail[i].filter(d => d.startsWith(prefix)));
+            const waiting = [0, 1, 2].filter(i => lists[i].length === 0);
+            if (waiting.length > 0) return { waiting, date: null };
+            const common = lists[0].filter(d => lists[1].includes(d) && lists[2].includes(d)).sort();
+            return { waiting: [], date: common[0] || null };
+        }
+
+        // 前回開催日の翌月が対象月。決定日が過ぎたら、それを前回開催日として繰り上げる
+        function nsState() {
+            const today = nsTodayStr();
+            let last = nsSchedule.lastDate;
+            const held = [last];
+            for (;;) {
+                const p = nsParse(last);
+                const target = nsNextMonth(p.y, p.m);
+                const result = nsDecide(target.y, target.m);
+                if (result.date && result.date < today) {
+                    last = result.date;
+                    held.push(last);
+                    continue;
+                }
+                return { last, held, target, result };
+            }
+        }
+
+        function nsResetView() {
+            const st = nsState();
+            nsViewYM = { y: st.target.y, m: st.target.m };
+        }
+
+        function nsMoveMonth(delta) {
+            if (!nsViewYM) nsResetView();
+            let { y, m } = nsViewYM;
+            m += delta;
+            if (m < 0) { m = 11; y--; }
+            if (m > 11) { m = 0; y++; }
+            nsViewYM = { y, m };
+            renderNextSchedule();
+        }
+
+        function nsSelectPlayer(i) {
+            nsMe = i;
+            nsMyPending = null;
+            try { localStorage.setItem(NS_PLAYER_KEY, String(i)); } catch (e) {}
+            renderNextSchedule();
+        }
+
+        function nsToggleDay(dateStr) {
+            if (nsMe === null) {
+                showDialog('先に「回答する人」から自分を選んでください', '次回日程', '#2d5016');
+                return;
+            }
+            const list = nsSchedule.avail[nsMe];
+            const idx = list.indexOf(dateStr);
+            if (idx >= 0) list.splice(idx, 1); else list.push(dateStr);
+            list.sort();
+            nsMyPending = list.slice();
+            renderNextSchedule();
+            clearTimeout(nsSaveTimer);
+            nsSaveTimer = setTimeout(nsSaveMine, 800);
+        }
+
+        async function nsFetchLatest() {
+            const res = await fetch(API_URL, { method: 'GET', headers: { 'x-access-token': API_TOKEN } });
+            if (res.status !== 200) throw new Error('GET ' + res.status);
+            return await res.json();
+        }
+
+        // 自分の○だけを最新データに反映して保存（他の人の○を消さないため）
+        async function nsSaveMine() {
+            if (nsMe === null || !nsMyPending) return;
+            const me = nsMe;
+            const mine = nsMyPending.slice();
+            try {
+                const latest = await nsFetchLatest();
+                if (Array.isArray(latest?.sections) && latest.sections.length > 0) {
+                    sections = latest.sections;
+                    if (currentSectionIndex >= sections.length) currentSectionIndex = sections.length - 1;
+                }
+                const merged = nsNormalize(latest?.schedule);
+                merged.avail[me] = mine;
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-access-token': API_TOKEN },
+                    body: JSON.stringify({ sections, schedule: merged })
+                });
+                if (res.status !== 200) throw new Error('POST ' + res.status);
+                // 保存中にさらにタップされていなければ保存待ちを解除
+                if (nsMyPending && nsMyPending.join() === mine.join()) nsMyPending = null;
+                nsApplyServerSchedule(merged);
+            } catch (e) {
+                console.error('次回日程の保存エラー', e);
+                showDialog('次回日程の保存に失敗しました');
+            }
+        }
+
+        function renderNextSchedule() {
+            const grid = document.getElementById('nsGrid');
+            if (!grid) return;
+            if (!nsViewYM) nsResetView();
+            const st = nsState();
+            const today = nsTodayStr();
+            const { y, m } = nsViewYM;
+
+            document.getElementById('nsLastHeld').textContent = `前回開催: ${nsLabel(st.last)}`;
+
+            document.getElementById('nsPlayers').innerHTML = [0, 1, 2].map(i =>
+                `<button class="ns-player-btn${nsMe === i ? ' active' : ''}" onclick="nsSelectPlayer(${i})">${nsShort(i)}</button>`
+            ).join('');
+
+            // Googleカレンダーは表示中の月を開く
+            document.getElementById('nsGoogleLink').href =
+                `https://calendar.google.com/calendar/r/month/${y}/${m + 1}/1`;
+
+            // カレンダー本体（月曜始まり）
+            document.getElementById('nsCalTitle').textContent = `${y}年 ${m + 1}月`;
+            const dows = ['月', '火', '水', '木', '金', '土', '日'];
+            let html = dows.map((d, i) =>
+                `<div class="ns-dow${i === 5 ? ' sat' : i === 6 ? ' sun' : ''}">${d}</div>`
+            ).join('');
+            const offset = (new Date(y, m, 1).getDay() + 6) % 7;
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            for (let i = 0; i < offset; i++) html += '<div class="ns-day empty"></div>';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const ds = nsFmt(y, m, d);
+                const col = (offset + d - 1) % 7;
+                const who = [0, 1, 2].filter(i => nsSchedule.avail[i].includes(ds));
+                const isHeld = st.held.includes(ds);
+                const isPast = ds < today;
+                const cls = ['ns-day'];
+                if (col === 5) cls.push('sat');
+                if (col === 6) cls.push('sun');
+                if (isPast) cls.push('past');
+                if (nsMe !== null && who.includes(nsMe)) cls.push('mine');
+                if (who.length === 3) cls.push('all');
+                if (st.result.date === ds) cls.push('decided');
+                if (isHeld) cls.push('held');
+                const marks = isHeld ? '🀄' : who.map(nsEmoji).join('');
+                const click = isPast ? '' : ` onclick="nsToggleDay('${ds}')"`;
+                html += `<div class="${cls.join(' ')}"${click}><span class="ns-num">${d}</span><span class="ns-marks">${marks}</span></div>`;
+            }
+            grid.innerHTML = html;
+
+            // 回答状況（対象月）
+            const t = st.target;
+            const prefix = nsYMPrefix(t.y, t.m);
+            const status = [0, 1, 2].map(i => {
+                const answered = nsSchedule.avail[i].some(d => d.startsWith(prefix));
+                return `${nsShort(i)}${answered ? '✅' : '⏳'}`;
+            }).join('　');
+            document.getElementById('nsStatus').textContent = `${t.m + 1}月の回答状況: ${status}`;
+
+            // 結果
+            const resultEl = document.getElementById('nsResult');
+            resultEl.classList.remove('decided');
+            if (st.result.waiting.length > 0) {
+                resultEl.textContent = `${t.m + 1}月 回答待ち: ${st.result.waiting.map(nsShort).join('、')}`;
+            } else if (!st.result.date) {
+                resultEl.textContent = `${t.m + 1}月は全員○の日がありません`;
+            } else {
+                resultEl.classList.add('decided');
+                resultEl.textContent = st.result.date === today
+                    ? `🎯 次回Tリーグ: 今日 ${nsLabel(st.result.date)}！`
+                    : `🎯 次回Tリーグ: ${nsLabel(st.result.date)}`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderNextSchedule);
+
         async function refreshData() {
             try {
                 await loadData();
