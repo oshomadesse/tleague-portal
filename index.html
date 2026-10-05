@@ -1262,6 +1262,10 @@
         }
         .ns-link-timetree { background: #3cba5c; }
         .ns-link-google { background: #4285f4; }
+        .ns-cal-card {
+            background: #fff; border: 2px solid #2d5016; border-radius: 10px;
+            padding: 10px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
         .ns-cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .ns-cal-title { font-size: 17px; font-weight: bold; color: #2d5016; }
         .ns-nav-btn {
@@ -2083,13 +2087,15 @@
                 <a class="ns-link-btn ns-link-timetree" id="nsTimeTreeLink" href="https://timetreeapp.com/" target="_blank" rel="noopener" onclick="return nsOpenTimeTree(event)">TimeTreeを開く</a>
                 <a class="ns-link-btn ns-link-google" id="nsGoogleLink" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener">Gカレンダーを開く</a>
             </div>
-            <div class="ns-cal-header">
-                <button class="ns-nav-btn" onclick="nsMoveMonth(-1)">◀</button>
-                <span class="ns-cal-title" id="nsCalTitle"></span>
-                <button class="ns-nav-btn" onclick="nsMoveMonth(1)">▶</button>
+            <div class="ns-cal-card">
+                <div class="ns-cal-header">
+                    <button class="ns-nav-btn" onclick="nsMoveMonth(-1)">◀</button>
+                    <span class="ns-cal-title" id="nsCalTitle"></span>
+                    <button class="ns-nav-btn" onclick="nsMoveMonth(1)">▶</button>
+                </div>
+                <div class="ns-grid" id="nsGrid"></div>
+                <div class="ns-legend">行ける日をタップで○（もう一度タップで解除）／黄色 = 全員○／青 = 土・赤 = 日・緑 = 祝日</div>
             </div>
-            <div class="ns-grid" id="nsGrid"></div>
-            <div class="ns-legend">行ける日をタップで○（もう一度タップで解除）／黄色 = 全員○／青 = 土・赤 = 日・緑 = 祝日</div>
             <div class="ns-status" id="nsStatus"></div>
             <div class="ns-result" id="nsResult"></div>
         </div>
