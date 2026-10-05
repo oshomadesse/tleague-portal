@@ -2076,7 +2076,7 @@
             <div class="ns-label">回答する人</div>
             <div class="ns-players" id="nsPlayers"></div>
             <div class="ns-links">
-                <a class="ns-link-btn ns-link-timetree" id="nsTimeTreeLink" href="https://timetreeapp.com/" target="_blank" rel="noopener">TimeTreeを開く</a>
+                <a class="ns-link-btn ns-link-timetree" id="nsTimeTreeLink" href="https://timetreeapp.com/" target="_blank" rel="noopener" onclick="return nsOpenTimeTree(event)">TimeTreeを開く</a>
                 <a class="ns-link-btn ns-link-google" id="nsGoogleLink" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener">Gカレンダーを開く</a>
             </div>
             <div class="ns-cal-header">
@@ -3408,6 +3408,13 @@
             if (m > 11) { m = 0; y++; }
             nsViewYM = { y, m };
             renderNextSchedule();
+        }
+
+        // TimeTreeアプリをURLスキームで直接起動（Webページだとアプリが開かないため）
+        function nsOpenTimeTree(e) {
+            e.preventDefault();
+            window.location.href = 'timetree://';
+            return false;
         }
 
         function nsSelectPlayer(i) {
