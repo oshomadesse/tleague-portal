@@ -3303,6 +3303,9 @@
                     }
                 }, 100);
             });
+
+            // チェック時に自動で保存（保存忘れ防止）
+            autoSaveSnapshot();
         }
         
         // ページ読み込み時にデータを読み込む
@@ -3632,7 +3635,20 @@
         async function confirmSaveSnapshot() {
             // 確認ダイアログを閉じる
             closeSaveConfirmDialog();
-            
+            await saveSnapshotNow();
+        }
+
+        // チェック押下時の自動保存（同じデータを何度も保存しないよう、前回保存時と変わっていなければスキップ）
+        let lastSnapshotData = null;
+        async function autoSaveSnapshot() {
+            if (sections.length === 0) return;
+            const current = JSON.stringify(sections);
+            if (current === lastSnapshotData) return;
+            await saveSnapshotNow();
+        }
+
+        // スナップショットをWorker(KV)に保存
+        async function saveSnapshotNow() {
             // 最新の節番号を取得
             const latestSectionNumber = sections.length;
             
@@ -3666,6 +3682,7 @@
                 });
                 
                 if (res.ok) {
+                    lastSnapshotData = JSON.stringify(sections);
                     // ✅ 成功：カスタムダイアログ（ヘッダー緑・タイトル「成功」）
                     showDialog(`記録を保存しました！\n${snapshotName}`, '成功', '#2d5016');
                 } else {
