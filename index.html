@@ -3561,9 +3561,9 @@
                 const isPast = ds < today;
                 const cls = ['ns-day'];
                 const holiday = nsHolidayName(ds);
-                if (holiday) cls.push('holiday');
-                else if (col === 5) cls.push('sat');
+                if (col === 5) cls.push('sat');
                 else if (col === 6) cls.push('sun');
+                else if (holiday) cls.push('holiday');
                 if (isPast) cls.push('past');
                 if (nsMe !== null && who.includes(nsMe)) cls.push('mine');
                 if (who.length === 3) cls.push('all');
