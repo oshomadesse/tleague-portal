@@ -2094,7 +2094,7 @@
                     <button class="ns-nav-btn" onclick="nsMoveMonth(1)">▶</button>
                 </div>
                 <div class="ns-grid" id="nsGrid"></div>
-                <div class="ns-legend">行ける日をタップで○（もう一度タップで解除）／黄色 = 全員○／青 = 土・赤 = 日・緑 = 祝日</div>
+                <div class="ns-legend">🟡=全員OK、🔵=土曜、🔴=日曜、🟢=祝日</div>
             </div>
             <div class="ns-status" id="nsStatus"></div>
             <div class="ns-result" id="nsResult"></div>
@@ -3374,6 +3374,11 @@
         // サーバーの日程を取り込む（保存待ちの自分の○は残す）
         function nsApplyServerSchedule(raw) {
             nsSchedule = nsNormalize(raw);
+            const rolled = nsRolledLast(nsSchedule);
+            if (rolled !== nsSchedule.lastDate) {
+                nsSchedule.lastDate = rolled;
+                nsPersistRollover();
+            }
             if (nsMe !== null && nsMyPending) {
                 nsSchedule.avail[nsMe] = nsMyPending.slice();
             }
@@ -3381,9 +3386,9 @@
         }
 
         // 指定月で全員○の最も早い日（1日も○がない人は未回答扱い）
-        function nsDecide(y, m) {
+        function nsDecide(y, m, sched = nsSchedule) {
             const prefix = nsYMPrefix(y, m);
-            const lists = [0, 1, 2].map(i => nsSchedule.avail[i].filter(d => d.startsWith(prefix)));
+            const lists = [0, 1, 2].map(i => sched.avail[i].filter(d => d.startsWith(prefix)));
             const waiting = [0, 1, 2].filter(i => lists[i].length === 0);
             if (waiting.length > 0) return { waiting, date: null };
             const common = lists[0].filter(d => lists[1].includes(d) && lists[2].includes(d)).sort();
@@ -3391,20 +3396,49 @@
         }
 
         // 前回開催日の翌月が対象月。決定日当日になったら、それを前回開催日として繰り上げる（当日に次の日程調整をするため）
-        function nsState() {
+        function nsState(sched = nsSchedule) {
             const today = nsTodayStr();
-            let last = nsSchedule.lastDate;
+            let last = sched.lastDate;
             const held = [last];
             for (;;) {
                 const p = nsParse(last);
                 const target = nsNextMonth(p.y, p.m);
-                const result = nsDecide(target.y, target.m);
+                const result = nsDecide(target.y, target.m, sched);
                 if (result.date && result.date <= today) {
                     last = result.date;
                     held.push(last);
                     continue;
                 }
                 return { last, held, target, result };
+            }
+        }
+        function nsRolledLast(sched) {
+            return nsState(sched).last;
+        }
+
+        // 繰り上げた前回開催日をサーバーにも保存（次から古い lastDate から辿らなくて済むように）
+        let nsRolling = false;
+        async function nsPersistRollover() {
+            if (nsRolling) return;
+            nsRolling = true;
+            try {
+                const latest = await nsFetchLatest();
+                // スコアを消さないよう、最新の sections が取れたときだけ保存
+                if (!Array.isArray(latest?.sections) || latest.sections.length === 0) return;
+                const merged = nsNormalize(latest.schedule);
+                const rolled = nsRolledLast(merged);
+                if (rolled === merged.lastDate) return;
+                merged.lastDate = rolled;
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-access-token': API_TOKEN },
+                    body: JSON.stringify({ sections: latest.sections, schedule: merged })
+                });
+                if (res.status !== 200) throw new Error('POST ' + res.status);
+            } catch (e) {
+                console.warn('前回開催日の繰り上げ保存に失敗', e);
+            } finally {
+                nsRolling = false;
             }
         }
 
@@ -3519,6 +3553,7 @@
                     if (currentSectionIndex >= sections.length) currentSectionIndex = sections.length - 1;
                 }
                 const merged = nsNormalize(latest?.schedule);
+                merged.lastDate = nsRolledLast(merged);
                 merged.avail[me] = mine;
                 const res = await fetch(API_URL, {
                     method: 'POST',
