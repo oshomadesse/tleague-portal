@@ -1294,7 +1294,7 @@
         .ns-day.mine .ns-num { border-color: #c41e3a; }
         .ns-day.all { background: #fff4c2; border-color: #e0b400; }
         .ns-day.decided { background: #ffd54f; border: 2px solid #c41e3a; }
-        .ns-day.held { background: #e8dcc4; border-color: #c9b58c; opacity: 1; }
+        .ns-day.held { background: #e8dcc4; border-color: #c9b58c; opacity: 1; cursor: default; }
         .ns-marks { font-size: 10px; line-height: 1; letter-spacing: -1px; min-height: 10px; }
         .ns-legend { font-size: 11px; color: #555; margin-top: 6px; }
         .ns-status { margin-top: 12px; font-size: 13px; color: #333; }
@@ -3390,7 +3390,7 @@
             return { waiting: [], date: common[0] || null };
         }
 
-        // 前回開催日の翌月が対象月。決定日が過ぎたら、それを前回開催日として繰り上げる
+        // 前回開催日の翌月が対象月。決定日当日になったら、それを前回開催日として繰り上げる（当日に次の日程調整をするため）
         function nsState() {
             const today = nsTodayStr();
             let last = nsSchedule.lastDate;
@@ -3399,7 +3399,7 @@
                 const p = nsParse(last);
                 const target = nsNextMonth(p.y, p.m);
                 const result = nsDecide(target.y, target.m);
-                if (result.date && result.date < today) {
+                if (result.date && result.date <= today) {
                     last = result.date;
                     held.push(last);
                     continue;
@@ -3579,7 +3579,8 @@
                 if (st.result.date === ds) cls.push('decided');
                 if (isHeld) cls.push('held');
                 const marks = isHeld ? '🀄' : who.map(nsEmoji).join('');
-                const click = isPast ? '' : ` onclick="nsToggleDay('${ds}')"`;
+                // 開催日（当日含む）は○を変えると決定が戻ってしまうのでタップ不可
+                const click = (isPast || isHeld) ? '' : ` onclick="nsToggleDay('${ds}')"`;
                 const tip = holiday ? ` title="${holiday}"` : '';
                 html += `<div class="${cls.join(' ')}"${click}${tip}><span class="ns-num">${d}</span><span class="ns-marks">${marks}</span></div>`;
             }
@@ -3603,9 +3604,7 @@
                 resultEl.textContent = `${t.m + 1}月は全員○の日がありません`;
             } else {
                 resultEl.classList.add('decided');
-                resultEl.textContent = st.result.date === today
-                    ? `🎯 次回Tリーグ: 今日 ${nsLabel(st.result.date)}！`
-                    : `🎯 次回Tリーグ: ${nsLabel(st.result.date)}`;
+                resultEl.textContent = `🎯 次回Tリーグ: ${nsLabel(st.result.date)}`;
             }
         }
 
