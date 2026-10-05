@@ -1278,7 +1278,11 @@
             display: flex; flex-direction: column; align-items: center; gap: 2px;
         }
         .ns-day.empty { background: transparent; border: none; cursor: default; }
-        .ns-day.past { background: #eee; cursor: default; opacity: 0.55; }
+        .ns-day.sat { background: #dbe7ff; border-color: #9db8ec; }
+        .ns-day.sun { background: #ffe1e1; border-color: #eba3a3; }
+        .ns-day.holiday { background: #d8f2d4; border-color: #8cc985; }
+        .ns-day.holiday .ns-num { color: #2e7d32; }
+        .ns-day.past { background: #eee; border-color: #ddd; cursor: default; opacity: 0.55; }
         .ns-num {
             font-size: 14px; font-weight: bold; width: 26px; height: 26px; line-height: 22px;
             border-radius: 50%; border: 2px solid transparent; box-sizing: border-box;
@@ -1286,7 +1290,7 @@
         .ns-day.mine .ns-num { border-color: #c41e3a; }
         .ns-day.all { background: #fff4c2; border-color: #e0b400; }
         .ns-day.decided { background: #ffd54f; border: 2px solid #c41e3a; }
-        .ns-day.held { background: #d7ecd0; opacity: 1; }
+        .ns-day.held { background: #e8dcc4; border-color: #c9b58c; opacity: 1; }
         .ns-marks { font-size: 10px; line-height: 1; letter-spacing: -1px; min-height: 10px; }
         .ns-legend { font-size: 11px; color: #555; margin-top: 6px; }
         .ns-status { margin-top: 12px; font-size: 13px; color: #333; }
@@ -2085,7 +2089,7 @@
                 <button class="ns-nav-btn" onclick="nsMoveMonth(1)">▶</button>
             </div>
             <div class="ns-grid" id="nsGrid"></div>
-            <div class="ns-legend">行ける日をタップで○（もう一度タップで解除）／黄色 = 全員○</div>
+            <div class="ns-legend">行ける日をタップで○（もう一度タップで解除）／黄色 = 全員○／青 = 土・赤 = 日・緑 = 祝日</div>
             <div class="ns-status" id="nsStatus"></div>
             <div class="ns-result" id="nsResult"></div>
         </div>
@@ -3417,6 +3421,55 @@
             return false;
         }
 
+        // 日本の祝日（振替休日・国民の休日を含む）を計算
+        const nsHolidayCache = {};
+        function nsHolidaysOf(y) {
+            if (nsHolidayCache[y]) return nsHolidayCache[y];
+            const h = {};
+            const add = (m, d, name) => { h[nsFmt(y, m - 1, d)] = name; };
+            const nthMonday = (m, n) => {
+                const first = new Date(y, m - 1, 1).getDay();
+                return 1 + ((8 - first) % 7) + (n - 1) * 7;
+            };
+            const base = 0.242194 * (y - 1980) - Math.floor((y - 1980) / 4);
+            add(1, 1, '元日');
+            add(1, nthMonday(1, 2), '成人の日');
+            add(2, 11, '建国記念の日');
+            add(2, 23, '天皇誕生日');
+            add(3, Math.floor(20.8431 + base), '春分の日');
+            add(4, 29, '昭和の日');
+            add(5, 3, '憲法記念日');
+            add(5, 4, 'みどりの日');
+            add(5, 5, 'こどもの日');
+            add(7, nthMonday(7, 3), '海の日');
+            add(8, 11, '山の日');
+            add(9, nthMonday(9, 3), '敬老の日');
+            add(9, Math.floor(23.2488 + base), '秋分の日');
+            add(10, nthMonday(10, 2), 'スポーツの日');
+            add(11, 3, '文化の日');
+            add(11, 23, '勤労感謝の日');
+            const keys = Object.keys(h).sort();
+            const dateOf = k => { const p = nsParse(k); return new Date(p.y, p.m, p.d); };
+            const keyOf = dt => nsFmt(dt.getFullYear(), dt.getMonth(), dt.getDate());
+            // 国民の休日（祝日に挟まれた平日）
+            for (const k of keys) {
+                const d1 = dateOf(k); d1.setDate(d1.getDate() + 1);
+                const d2 = dateOf(k); d2.setDate(d2.getDate() + 2);
+                if (!h[keyOf(d1)] && h[keyOf(d2)] && d1.getDay() !== 0) h[keyOf(d1)] = '国民の休日';
+            }
+            // 振替休日（日曜の祝日 → 次の祝日でない日）
+            for (const k of Object.keys(h).sort()) {
+                const dt = dateOf(k);
+                if (dt.getDay() !== 0) continue;
+                do { dt.setDate(dt.getDate() + 1); } while (h[keyOf(dt)]);
+                if (dt.getFullYear() === y) h[keyOf(dt)] = '振替休日';
+            }
+            return (nsHolidayCache[y] = h);
+        }
+        function nsHolidayName(ds) {
+            return nsHolidaysOf(nsParse(ds).y)[ds] || '';
+        }
+
         function nsSelectPlayer(i) {
             nsMe = i;
             nsMyPending = null;
@@ -3507,8 +3560,10 @@
                 const isHeld = st.held.includes(ds);
                 const isPast = ds < today;
                 const cls = ['ns-day'];
-                if (col === 5) cls.push('sat');
-                if (col === 6) cls.push('sun');
+                const holiday = nsHolidayName(ds);
+                if (holiday) cls.push('holiday');
+                else if (col === 5) cls.push('sat');
+                else if (col === 6) cls.push('sun');
                 if (isPast) cls.push('past');
                 if (nsMe !== null && who.includes(nsMe)) cls.push('mine');
                 if (who.length === 3) cls.push('all');
@@ -3516,7 +3571,8 @@
                 if (isHeld) cls.push('held');
                 const marks = isHeld ? '🀄' : who.map(nsEmoji).join('');
                 const click = isPast ? '' : ` onclick="nsToggleDay('${ds}')"`;
-                html += `<div class="${cls.join(' ')}"${click}><span class="ns-num">${d}</span><span class="ns-marks">${marks}</span></div>`;
+                const tip = holiday ? ` title="${holiday}"` : '';
+                html += `<div class="${cls.join(' ')}"${click}${tip}><span class="ns-num">${d}</span><span class="ns-marks">${marks}</span></div>`;
             }
             grid.innerHTML = html;
 
