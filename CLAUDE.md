@@ -48,7 +48,7 @@
 
 ### API
 
-- エンドポイント: `https://mahjong-scoresheet-api.oshomadesse.workers.dev/mahjong`
+- エンドポイント: `https://mahjong-scoresheet-api.osdse.workers.dev/mahjong`
 - 認証: `x-access-token` ヘッダー（パスワード）、セッション2時間
 - バックエンド: Cloudflare Workers
 - ※パスワードはWorkers側の環境変数で管理。リポジトリには絶対に入れない
