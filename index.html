@@ -1566,7 +1566,7 @@
             seasonList().forEach(season => {
                 const tab = document.createElement('div');
                 tab.className = `season-tab ${season === active ? 'active' : ''}`;
-                tab.textContent = `Tリーグ${season}`;
+                tab.textContent = `${season}`;
                 tab.onclick = () => selectSeason(season);
                 container.appendChild(tab);
             });
