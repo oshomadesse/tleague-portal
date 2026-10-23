@@ -271,6 +271,38 @@
             color: white;
         }
 
+        .season-title {
+            text-align: center;
+            font-weight: bold;
+            color: #2d5016;
+            font-size: 16px;
+            margin: -10px 0 15px;
+        }
+
+        .season-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .season-tab {
+            background: white;
+            border: 1px solid #2d5016;
+            padding: 4px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d5016;
+            font-size: 12px;
+        }
+
+        .season-tab.active {
+            background: #2d5016;
+            color: white;
+        }
+
         .add-section-btn {
             background: linear-gradient(135deg, #c41e3a 0%, #9a1529 100%);
             color: white;
@@ -1408,7 +1440,7 @@
     <div id="newSectionDialogOverlay" class="custom-alert-overlay">
         <div class="custom-alert-box">
             <div class="custom-alert-header">新しい節を作成</div>
-            <div class="custom-alert-body">
+            <div class="custom-alert-body" id="newSectionDialogMessage">
                 新しい節を作成しますか？
             </div>
             <div class="custom-alert-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -1449,9 +1481,88 @@
             return `${emojiStart}${name}${emojiEnd}`;
         });
         
-        let sections = []; // 節ごとのデータ [{games: [...]}]
-        let currentSectionIndex = 0; // 現在表示中の節のインデックス
-        let rankingMode = 'today'; // 'today' or 'total'
+        let sections = []; // 節ごとのデータ [{season: 2026, games: [...]}]
+        let currentSectionIndex = 0; // 現在表示中の節のインデックス（sections全体での位置）
+        let rankingMode = 'today'; // 'today' / 'season' / 'total'
+
+        // --- シーズン（年）管理 ---
+        // 節は作成した年のシーズンに属し、節番号はシーズンごとに第1節から数える
+        const DEFAULT_SEASON = 2026; // season を持たない旧データの扱い
+
+        // season が無い節は直前の節（先頭なら DEFAULT_SEASON）と同じシーズンとみなす
+        function normalizeSections(arr) {
+            let prev = DEFAULT_SEASON;
+            return (Array.isArray(arr) ? arr : []).map(s => {
+                const season = Number.isInteger(s?.season) ? s.season : prev;
+                prev = season;
+                return { ...s, season, games: Array.isArray(s?.games) ? s.games : [] };
+            });
+        }
+
+        // 新しい節（今年のシーズン。最新の節より前の年にはしない）
+        function createSection() {
+            const last = sections[sections.length - 1];
+            const season = Math.max(new Date().getFullYear(), last ? last.season : DEFAULT_SEASON);
+            return { season, games: [] };
+        }
+
+        function seasonList() {
+            return [...new Set(sections.map(s => s.season))].sort((a, b) => a - b);
+        }
+
+        // シーズン内での節番号（1始まり）
+        function sectionNumber(index) {
+            const season = sections[index].season;
+            let n = 0;
+            for (let i = 0; i <= index; i++) {
+                if (sections[i].season === season) n++;
+            }
+            return n;
+        }
+
+        function sectionLabel(index) {
+            return `第${sectionNumber(index)}節`;
+        }
+
+        // 表示中のシーズン（表示中の節のシーズン）
+        function currentSeason() {
+            const s = sections[currentSectionIndex] || sections[sections.length - 1];
+            return s ? s.season : createSection().season;
+        }
+
+        function seasonSections(season) {
+            return sections.filter(s => s.season === season);
+        }
+
+        // シーズン切替：そのシーズンの最新の節を表示
+        function selectSeason(season) {
+            for (let i = sections.length - 1; i >= 0; i--) {
+                if (sections[i].season === season) {
+                    currentSectionIndex = i;
+                    break;
+                }
+            }
+            updateRanking();
+            updateHistory();
+            updatePointTrendChart();
+        }
+
+        // シーズン切替ボタンを描画
+        function renderSeasonTabs(container) {
+            container.innerHTML = '';
+            const active = currentSeason();
+            seasonList().forEach(season => {
+                const tab = document.createElement('div');
+                tab.className = `season-tab ${season === active ? 'active' : ''}`;
+                tab.textContent = `Tリーグ${season}`;
+                tab.onclick = () => selectSeason(season);
+                container.appendChild(tab);
+            });
+        }
+
+        function updateSeasonTitle() {
+            document.getElementById('seasonTitle').textContent = `🀄 Tリーグ${currentSeason()} 🀄`;
+        }
         
         // カスタムエラーダイアログ
         function showDialog(message, title = 'エラー', headerColor = '#c41e3a') {
@@ -1666,7 +1777,7 @@
             document.getElementById('editScore3').disabled = true;
             
             // ヘッダーを変更
-            document.querySelector('#editDialogOverlay .custom-alert-header').textContent = '第' + (sectionIndex + 1) + '節の合計を編集';
+            document.querySelector('#editDialogOverlay .custom-alert-header').textContent = sectionLabel(sectionIndex) + 'の合計を編集';
             
             document.getElementById('editDialogOverlay').style.display = 'flex';
         }
@@ -1680,7 +1791,7 @@
             const gameCount = section.games.length;
             
             document.getElementById('deleteDialogMessage').textContent = 
-                `第${sectionIndex + 1}節を削除しますか？（${gameCount}半荘のデータが削除されます）`;
+                `Tリーグ${section.season} ${sectionLabel(sectionIndex)}を削除しますか？（${gameCount}半荘のデータが削除されます）`;
             document.getElementById('deleteDialogOverlay').style.display = 'flex';
         }
 
@@ -1772,12 +1883,12 @@
                         // 初回ロード
                         const data = await res.json();
                         console.log('データ取得成功:', data);
-                        sections = data?.sections || [];
+                        sections = normalizeSections(data?.sections);
                         nsApplyServerSchedule(data?.schedule);
 
                         // 初回利用の場合は空なら第1節を作る
                         if (sections.length === 0) {
-                            sections.push({ games: [] });
+                            sections.push(createSection());
                         }
 
                         // 最新の節をデフォルト表示
@@ -1894,14 +2005,17 @@
     <div id="portal-tab-scoresheet">
     <div class="container" id="mainContainer" style="display: none;">
         <h1>📊 スコアシート 📊</h1>
+        <div class="season-title" id="seasonTitle"></div>
 
         <!-- 順位表 -->
         <div class="section">
             <h3 class="section-title">📊 順位表</h3>
             <div class="ranking-tabs">
-                <div class="ranking-tab active" onclick="switchRankingTab('today')">本日</div>
-                <div class="ranking-tab" onclick="switchRankingTab('total')">全体</div>
+                <div class="ranking-tab active" data-mode="today" onclick="switchRankingTab('today')">本日</div>
+                <div class="ranking-tab" data-mode="season" onclick="switchRankingTab('season')">シーズン</div>
+                <div class="ranking-tab" data-mode="total" onclick="switchRankingTab('total')">通算</div>
             </div>
+            <div class="season-tabs" id="rankingSeasonTabs" style="display: none;"></div>
             <div id="rankingList"></div>
         </div>
 
@@ -2018,6 +2132,7 @@
                 <span>📜 対局履歴</span>
                 <button class="ios-button" onclick="refreshData()">更新</button>
             </h3>
+            <div class="season-tabs" id="historySeasonTabs"></div>
             <div class="tabs-container" id="tabsContainer"></div>
             <div class="history-table-container">
                 <table class="history-table" id="historyTable">
@@ -2276,12 +2391,12 @@
             }
         
             const data = await res.json();
-            sections = data?.sections || [];
+            sections = normalizeSections(data?.sections);
             nsApplyServerSchedule(data?.schedule);
-        
+
             // ③ 初回利用の場合は空なら第1節を作る
             if (sections.length === 0) {
-                sections.push({ games: [] });
+                sections.push(createSection());
             }
         
             currentSectionIndex = sections.length - 1;
@@ -2562,7 +2677,7 @@
 
             // 最新の節に追加
             if (sections.length === 0) {
-                sections.push({ games: [] });
+                sections.push(createSection());
             }
             sections[sections.length - 1].games.push(gameData);
             
@@ -2625,14 +2740,19 @@
         // 新しい節を追加
         // 新しい節を追加（ダイアログ表示）
         function addNewSection() {
+            const season = createSection().season;
+            const n = seasonSections(season).length + 1;
+            document.getElementById('newSectionDialogMessage').textContent =
+                `Tリーグ${season} 第${n}節を作成しますか？`;
             document.getElementById('newSectionDialogOverlay').style.display = 'flex';
         }
-        
+
         // 新しい節の作成を確定
         function confirmNewSection() {
-            sections.push({ games: [] });
+            sections.push(createSection());
             currentSectionIndex = sections.length - 1;
             saveData();
+            updateRanking();
             updateHistory();
             closeNewSectionDialog();
         }
@@ -2649,16 +2769,11 @@
             // タブのアクティブ状態を更新
             const tabs = document.querySelectorAll('.ranking-tab');
             tabs.forEach(tab => {
-                if ((mode === 'today' && tab.textContent === '本日') ||
-                    (mode === 'total' && tab.textContent === '全体')) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
+                tab.classList.toggle('active', tab.dataset.mode === mode);
             });
 
-            // 全体タブ時は対局入力・履歴・最終ポイントを非表示
-            const displayStyle = mode === 'total' ? 'none' : 'block';
+            // シーズン・通算タブ時は対局入力・履歴・最終ポイントを非表示
+            const displayStyle = mode === 'today' ? 'block' : 'none';
             document.getElementById('gameInputSection').style.display = displayStyle;
             document.getElementById('historySection').style.display = displayStyle;
             document.getElementById('finalPointsSection').style.display = displayStyle;
@@ -2682,8 +2797,9 @@
                     });
                 }
             } else {
-                // 全体：全ての節
-                sections.forEach(section => {
+                // シーズン：表示中のシーズンの節 / 通算：全ての節
+                const target = rankingMode === 'season' ? seasonSections(currentSeason()) : sections;
+                target.forEach(section => {
                     section.games.forEach(game => {
                         game.points.forEach((point, index) => {
                             totalPoints[index] += point;
@@ -2691,6 +2807,12 @@
                     });
                 });
             }
+
+            // シーズンタブ時だけシーズン切替を表示
+            const rankingSeasonTabs = document.getElementById('rankingSeasonTabs');
+            rankingSeasonTabs.style.display = rankingMode === 'season' ? 'flex' : 'none';
+            renderSeasonTabs(rankingSeasonTabs);
+            updateSeasonTitle();
 
             // 順位を決定
             const ranking = totalPoints.map((points, index) => ({
@@ -2731,15 +2853,17 @@
 
             let labels, nishikataData, takahashiData, otaData;
 
-            if (rankingMode === 'total') {
-                // 全体モード：節ごとの累積ポイント
+            if (rankingMode !== 'today') {
+                // シーズン / 通算モード：節ごとの累積ポイント
                 labels = ['開始'];
                 nishikataData = [0];
                 takahashiData = [0];
                 otaData = [0];
 
+                const season = currentSeason();
                 let nTotal = 0, tTotal = 0, oTotal = 0;
                 sections.forEach((section, sectionIndex) => {
+                    if (rankingMode === 'season' && section.season !== season) return;
                     // 各節の合計ポイントを計算
                     let sectionN = 0, sectionT = 0, sectionO = 0;
                     section.games.forEach(game => {
@@ -2751,7 +2875,9 @@
                     tTotal += sectionT;
                     oTotal += sectionO;
 
-                    labels.push(`第${sectionIndex + 1}節`);
+                    labels.push(rankingMode === 'total'
+                        ? `${String(section.season).slice(-2)}年${sectionLabel(sectionIndex)}`
+                        : sectionLabel(sectionIndex));
                     nishikataData.push(nTotal);
                     takahashiData.push(tTotal);
                     otaData.push(oTotal);
@@ -2915,17 +3041,20 @@
             
             historyList.innerHTML = '';
             tabsContainer.innerHTML = '';
+            renderSeasonTabs(document.getElementById('historySeasonTabs'));
 
             if (sections.length === 0) {
                 historyList.innerHTML = '<tr><td colspan="5" style="padding: 20px; color: #666;">まだ対局がありません</td></tr>';
                 return;
             }
 
-            // タブを生成
+            // タブを生成（表示中のシーズンの節だけ）
+            const season = currentSeason();
             sections.forEach((section, index) => {
+                if (section.season !== season) return;
                 const tab = document.createElement('div');
                 tab.className = `tab ${index === currentSectionIndex ? 'active' : ''}`;
-                tab.textContent = `第${index + 1}節`;
+                tab.textContent = sectionLabel(index);
                 tab.onclick = () => {
                     currentSectionIndex = index;
                     updateHistory();
@@ -3548,7 +3677,7 @@
             try {
                 const latest = await nsFetchLatest();
                 if (Array.isArray(latest?.sections) && latest.sections.length > 0) {
-                    sections = latest.sections;
+                    sections = normalizeSections(latest.sections);
                     if (currentSectionIndex >= sections.length) currentSectionIndex = sections.length - 1;
                 }
                 const merged = nsNormalize(latest?.schedule);
@@ -3687,20 +3816,22 @@
 
         // スナップショットをWorker(KV)に保存
         async function saveSnapshotNow() {
-            // 最新の節番号を取得
-            const latestSectionNumber = sections.length;
+            // 最新の節のシーズンと、シーズン内の節番号を取得
+            const latestSeason = sections[sections.length - 1].season;
+            const latestSectionNumber = sectionNumber(sections.length - 1);
             
             // タイムスタンプを生成 (YYYYMMDD_HHMMSS)
             const now = new Date();
             const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
             
             // ファイル名を生成
-            const snapshotName = `Tリーグ第${latestSectionNumber}節時点_${timestamp}`;
+            const snapshotName = `Tリーグ${latestSeason}第${latestSectionNumber}節時点_${timestamp}`;
             
             // スナップショットデータを作成
             const snapshotData = {
                 name: snapshotName,
                 timestamp: now.toISOString(),
+                season: latestSeason,
                 sectionNumber: latestSectionNumber,
                 sections: sections
             };
