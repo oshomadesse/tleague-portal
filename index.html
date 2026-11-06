@@ -2473,7 +2473,13 @@
                 
                 // 1位は2位と3位の合計の逆数
                 finalPoints[firstIndex] = -(finalPoints[secondIndex] + finalPoints[thirdIndex]);
-                
+
+            } else if (firstPoint === secondPoint) {
+                // 1位と2位が同点の場合: 3着は-10、残りを1位2位で折半
+                finalPoints[thirdIndex] = thirdPoint - 10;
+                finalPoints[firstIndex] = -finalPoints[thirdIndex] / 2;
+                finalPoints[secondIndex] = -finalPoints[thirdIndex] / 2;
+
             } else {
                 // 通常の処理
                 finalPoints[firstIndex] = firstPoint;
