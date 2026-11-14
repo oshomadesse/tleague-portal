@@ -825,74 +825,91 @@
             border-color: #c41e3a;
             box-shadow: 0 2px 8px rgba(196,30,58,0.3);
         }
-        .portal-tab-btn { white-space: nowrap; }
+        .portal-tab-btn { flex: 1 1 0; min-width: 0; white-space: nowrap; }
         @media (max-width: 480px) {
             .portal-tabs-bar { gap: 6px; }
-            .portal-tab-btn { flex: 1 1 auto; padding: 12px 6px; font-size: 13px; }
+            .portal-tab-btn { padding: 12px 2px; font-size: 13px; }
         }
 
         /* === バッジタブ（クラスは bdg- で統一。他タブと衝突させない） === */
+        /* 見た目はスコアシート（.container / h1 / .section / .history-table / .yakuman-badge）に合わせる */
         .bdg-wrap {
             max-width: 600px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            padding: 15px 12px;
+            padding: 15px;
         }
-        .bdg-h1 { text-align: center; color: #c41e3a; margin-bottom: 16px; font-size: 22px; }
-        .bdg-panel { background: #e8f5e9; border: 2px solid #2d5016; border-radius: 12px; padding: 12px 6px; }
+        .bdg-h1 {
+            text-align: center; color: #c41e3a; margin-bottom: 20px; font-size: 24px; font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .bdg-panel { background: #e8f5e9; border: 2px solid #2d5016; border-radius: 12px; padding: 15px; }
         .bdg-panel-title {
-            color: #2d5016; font-size: 17px; font-weight: bold; margin-bottom: 12px; padding: 0 4px;
+            color: #2d5016; font-size: 18px; font-weight: bold; margin-bottom: 15px;
             display: flex; justify-content: space-between; align-items: center;
         }
         .bdg-add-btn {
-            background: #666666; color: white; border: none; padding: 8px 16px; border-radius: 10px;
+            background: #666666; color: white; border: none; padding: 6px 14px; border-radius: 10px;
             font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;
         }
-        .bdg-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
-        .bdg-col { background: white; border: 2px solid #2d5016; border-radius: 10px; padding: 8px 4px; min-height: 180px; }
-        .bdg-pname {
-            font-size: 13px; font-weight: bold; color: #2d5016; text-align: center; white-space: nowrap;
-            padding-bottom: 6px; border-bottom: 2px solid rgba(45,80,22,0.3); margin-bottom: 4px;
+        .bdg-table {
+            width: 100%; table-layout: fixed; background: white; border-radius: 8px; overflow: hidden;
+            border: 2px solid #2d5016; border-collapse: collapse;
         }
-        .bdg-count { font-size: 11px; color: #666; text-align: center; margin-bottom: 4px; }
-        .bdg-count b { color: #c41e3a; font-size: 14px; }
-        .bdg-empty { font-size: 11px; color: #aaa; text-align: center; margin-top: 16px; }
+        .bdg-table th {
+            background: linear-gradient(135deg, #2d5016 0%, #1a3d0a 100%); color: white;
+            padding: 4px; text-align: center; font-size: 11px; border: 1px solid #1a3d0a;
+            height: 30px; white-space: nowrap;
+        }
+        .bdg-table td {
+            padding: 8px 4px; text-align: center; vertical-align: top;
+            border: 1px solid #e0e0e0; font-size: 12px; height: 110px;
+        }
+        .bdg-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .bdg-count { font-size: 11px; color: #666; }
+        .bdg-count b { font-size: 13px; color: #c41e3a; }
         .bdg-chip {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 100%; min-height: 34px; margin-top: 5px; padding: 6px 2px;
-            border: none; border-radius: 6px; color: white; font-weight: bold; font-size: 11.5px;
-            font-family: inherit; white-space: nowrap; cursor: pointer; letter-spacing: -0.3px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+            display: inline-block; border: none; color: white; font-size: 9px; font-weight: bold;
+            padding: 2px 5px; border-radius: 3px; margin-top: 2px; font-family: inherit;
+            white-space: nowrap; cursor: pointer; line-height: normal;
         }
-        .bdg-chip.rank1 { background: #c39000; }   /* 役満（対局履歴の .yakuman-badge と同色） */
-        .bdg-chip.rank2 { background: #00008b; }   /* ダブル役満（.double-yakuman-badge と同色） */
-        .bdg-legend { display: flex; gap: 12px; justify-content: center; margin-top: 12px; font-size: 11px; color: #333; }
+        .bdg-chip.none { background: #cccccc; cursor: default; }
+        .rank1.bdg-chip, .rank1.bdg-opt { background: #c39000; }   /* 役満（.yakuman-badge と同色） */
+        .rank2.bdg-chip, .rank2.bdg-opt { background: #00008b; }   /* ダブル役満（.double-yakuman-badge と同色） */
+        .bdg-legend { display: flex; gap: 12px; justify-content: center; margin-top: 12px; font-size: 11px; color: #555; }
         .bdg-legend span { display: inline-flex; align-items: center; gap: 4px; }
-        .bdg-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-        .bdg-note { font-size: 11px; color: #666; text-align: center; margin-top: 6px; }
+        .bdg-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+        .bdg-note { font-size: 11px; color: #555; text-align: center; margin-top: 6px; }
+        /* ダイアログ内の選択ボタン（タップしやすい大きさ） */
+        .bdg-opt {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; min-height: 40px; padding: 6px 2px; border: none; border-radius: 6px;
+            color: white; font-weight: bold; font-size: 12px; font-family: inherit;
+            white-space: nowrap; cursor: pointer; letter-spacing: -0.3px;
+        }
 
         /* バッジ用ダイアログ */
         .bdg-dialog-box { display: flex; flex-direction: column; max-height: 90vh; max-height: 90dvh; width: 94%; }
         .bdg-dialog-body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 12px; }
-        .bdg-label { font-size: 13px; font-weight: bold; color: #2d5016; margin: 12px 0 6px; }
+        .bdg-label { font-size: 14px; font-weight: bold; color: #2d5016; margin: 12px 0 6px; }
         .bdg-label:first-child { margin-top: 0; }
         .bdg-who { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
         .bdg-who button {
             border: 2px solid #2d5016; border-radius: 8px; padding: 10px 2px; background: white;
-            font-size: 13px; font-weight: bold; color: #2d5016; white-space: nowrap; cursor: pointer; font-family: inherit;
+            font-size: 14px; font-weight: bold; color: #2d5016; white-space: nowrap; cursor: pointer; font-family: inherit;
         }
         .bdg-who button.on { background: linear-gradient(135deg, #2d5016 0%, #1a3d0a 100%); color: white; }
         .bdg-pick-label { font-size: 11px; color: #666; margin: 8px 0 2px; }
         .bdg-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-        .bdg-pick .bdg-chip { margin-top: 0; min-height: 40px; opacity: 0.4; box-shadow: none; }
-        .bdg-pick .bdg-chip.on { opacity: 1; outline: 3px solid #c41e3a; outline-offset: 1px; }
-        .bdg-pick .bdg-chip:disabled { cursor: default; opacity: 0.2; }
+        .bdg-pick .bdg-opt { opacity: 0.4; }
+        .bdg-pick .bdg-opt.on { opacity: 1; outline: 3px solid #c41e3a; outline-offset: 1px; }
+        .bdg-pick .bdg-opt:disabled { cursor: default; opacity: 0.2; }
         .bdg-owned { font-size: 9px; font-weight: normal; line-height: 1.2; }
         .bdg-error { color: #c41e3a; font-size: 13px; font-weight: bold; margin-top: 10px; min-height: 18px; }
         .bdg-detail { text-align: center; }
-        .bdg-detail .bdg-chip { width: auto; display: inline-flex; padding: 8px 18px; font-size: 15px; cursor: default; }
+        .bdg-detail .bdg-opt { width: auto; display: inline-flex; padding: 8px 18px; font-size: 15px; cursor: default; }
         .bdg-detail p { margin-top: 10px; font-size: 14px; color: #333; }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { -webkit-text-size-adjust: 100%; }
@@ -1580,7 +1597,7 @@
         // 役満バッジ（3人で同期。APIの badges キーに sections / schedule と一緒に保存）
         // 1人につき同じ役満のバッジは1つだけ: [{ player: 0〜2, yaku: 'daisangen' }]
         // =========================
-        const BDG_NAMES = ['🛡️西方🛡️', '🐺高橋🐺', '🐲大田🐲'];
+        const BDG_NAMES = ['🛡️西方', '🐺高橋', '🐲大田'];
         const BDG_YAKU = [
             { id: 'kokushi',        name: '国士無双',       rank: 1 },
             { id: 'suuankou',       name: '四暗刻',         rank: 1 },
@@ -1697,11 +1714,10 @@
                 const chips = mine.map(({ b, y }) =>
                     `<button type="button" class="bdg-chip rank${y.rank}" onclick="bdgOpenDetail(${p},'${b.yaku}')">${y.name}</button>`
                 ).join('');
-                return `<div class="bdg-col">
-                    <div class="bdg-pname">${BDG_NAMES[p]}</div>
+                return `<td><div class="bdg-cell">
                     <div class="bdg-count"><b>${mine.length}</b> 種類</div>
-                    ${chips || '<div class="bdg-empty">まだなし</div>'}
-                </div>`;
+                    ${chips || '<div class="bdg-chip none">なし</div>'}
+                </div></td>`;
             }).join('');
         }
 
@@ -1729,7 +1745,7 @@
                 `<div class="bdg-pick-label">${label}</div><div class="bdg-pick">` +
                 BDG_YAKU.filter(y => y.rank === rank).map(y => {
                     const owned = player !== null && bdgHas(player, y.id);
-                    return `<button type="button" class="bdg-chip rank${rank}${selected.has(y.id) ? ' on' : ''}"` +
+                    return `<button type="button" class="bdg-opt rank${rank}${selected.has(y.id) ? ' on' : ''}"` +
                         `${owned && lockOwned ? ' disabled' : ''} onclick="bdgTogglePick(${player},'${y.id}',this)">` +
                         `${y.name}${owned ? '<span class="bdg-owned">獲得済</span>' : ''}</button>`;
                 }).join('') + '</div>'
@@ -1788,7 +1804,7 @@
             const y = bdgYaku(yakuId);
             bdgDlg = { mode: 'detail', player, yaku: yakuId };
             const body = `<div class="bdg-detail">
-                <span class="bdg-chip rank${y.rank}">${y.name}</span>
+                <span class="bdg-opt rank${y.rank}">${y.name}</span>
                 <p>${players[player]}</p>
                 ${confirming ? '<p style="color:#c41e3a; font-weight:bold;">このバッジを削除しますか？</p>' : ''}
             </div>`;
@@ -2572,7 +2588,10 @@
                     <span>獲得バッジ</span>
                     <button type="button" class="bdg-add-btn" onclick="bdgOpenAdd()">＋ 追加</button>
                 </div>
-                <div class="bdg-cols" id="bdgCols"></div>
+                <table class="bdg-table">
+                    <thead><tr><th>🛡️西方</th><th>🐺高橋</th><th>🐲大田</th></tr></thead>
+                    <tbody><tr id="bdgCols"></tr></tbody>
+                </table>
                 <div class="bdg-legend">
                     <span><i style="background:#c39000"></i>役満</span>
                     <span><i style="background:#00008b"></i>ダブル役満</span>
