@@ -825,6 +825,79 @@
             border-color: #c41e3a;
             box-shadow: 0 2px 8px rgba(196,30,58,0.3);
         }
+        .portal-tab-btn { white-space: nowrap; }
+        @media (max-width: 480px) {
+            .portal-tabs-bar { gap: 6px; }
+            .portal-tab-btn { flex: 1 1 auto; padding: 12px 6px; font-size: 13px; }
+        }
+
+        /* === バッジタブ（クラスは bdg- で統一。他タブと衝突させない） === */
+        .bdg-wrap {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 15px 12px;
+        }
+        .bdg-h1 { text-align: center; color: #c41e3a; margin-bottom: 16px; font-size: 22px; }
+        .bdg-panel { background: #e8f5e9; border: 2px solid #2d5016; border-radius: 12px; padding: 12px 6px; }
+        .bdg-panel-title {
+            color: #2d5016; font-size: 17px; font-weight: bold; margin-bottom: 12px; padding: 0 4px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .bdg-add-btn {
+            background: #666666; color: white; border: none; padding: 8px 16px; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;
+        }
+        .bdg-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+        .bdg-col { background: white; border: 2px solid #2d5016; border-radius: 10px; padding: 8px 4px; min-height: 180px; }
+        .bdg-pname {
+            font-size: 13px; font-weight: bold; color: #2d5016; text-align: center; white-space: nowrap;
+            padding-bottom: 6px; border-bottom: 2px solid rgba(45,80,22,0.3); margin-bottom: 4px;
+        }
+        .bdg-count { font-size: 11px; color: #666; text-align: center; margin-bottom: 4px; }
+        .bdg-count b { color: #c41e3a; font-size: 14px; }
+        .bdg-empty { font-size: 11px; color: #aaa; text-align: center; margin-top: 16px; }
+        .bdg-chip {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; min-height: 34px; margin-top: 5px; padding: 6px 2px;
+            border: none; border-radius: 6px; color: white; font-weight: bold; font-size: 11.5px;
+            font-family: inherit; white-space: nowrap; cursor: pointer; letter-spacing: -0.3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        }
+        .bdg-chip.rank1 { background: #c39000; }   /* 役満（対局履歴の .yakuman-badge と同色） */
+        .bdg-chip.rank2 { background: #00008b; }   /* ダブル役満（.double-yakuman-badge と同色） */
+        .bdg-legend { display: flex; gap: 12px; justify-content: center; margin-top: 12px; font-size: 11px; color: #333; }
+        .bdg-legend span { display: inline-flex; align-items: center; gap: 4px; }
+        .bdg-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+        .bdg-note { font-size: 11px; color: #666; text-align: center; margin-top: 6px; }
+
+        /* バッジ用ダイアログ */
+        .bdg-dialog-box { display: flex; flex-direction: column; max-height: 90vh; max-height: 90dvh; width: 94%; }
+        .bdg-dialog-body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 12px; }
+        .bdg-label { font-size: 13px; font-weight: bold; color: #2d5016; margin: 12px 0 6px; }
+        .bdg-label:first-child { margin-top: 0; }
+        .bdg-who { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+        .bdg-who button {
+            border: 2px solid #2d5016; border-radius: 8px; padding: 10px 2px; background: white;
+            font-size: 13px; font-weight: bold; color: #2d5016; white-space: nowrap; cursor: pointer; font-family: inherit;
+        }
+        .bdg-who button.on { background: linear-gradient(135deg, #2d5016 0%, #1a3d0a 100%); color: white; }
+        .bdg-pick-label { font-size: 11px; color: #666; margin: 8px 0 2px; }
+        .bdg-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+        .bdg-pick .bdg-chip { margin-top: 0; min-height: 40px; opacity: 0.4; box-shadow: none; }
+        .bdg-pick .bdg-chip.on { opacity: 1; outline: 3px solid #c41e3a; outline-offset: 1px; }
+        .bdg-pick .bdg-chip:disabled { cursor: default; opacity: 0.2; }
+        .bdg-owned { font-size: 9px; font-weight: normal; line-height: 1.2; }
+        .bdg-date {
+            width: 100%; padding: 9px 10px; border: 2px solid #2d5016; border-radius: 8px;
+            font-size: 16px; font-family: inherit; background: white; color: #333;
+        }
+        .bdg-error { color: #c41e3a; font-size: 13px; font-weight: bold; margin-top: 10px; min-height: 18px; }
+        .bdg-detail { text-align: center; }
+        .bdg-detail .bdg-chip { width: auto; display: inline-flex; padding: 8px 18px; font-size: 15px; cursor: default; }
+        .bdg-detail p { margin-top: 10px; font-size: 14px; color: #333; }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { -webkit-text-size-adjust: 100%; }
     body {
@@ -1353,6 +1426,7 @@
     <div class="portal-tabs-bar">
         <button class="portal-tab-btn active" data-tab="scoresheet" onclick="switchPortalTab('scoresheet')">📊 スコアシート</button>
         <button class="portal-tab-btn" data-tab="checker" onclick="switchPortalTab('checker')">🔍 チェッカー</button>
+        <button class="portal-tab-btn" data-tab="badge" onclick="switchPortalTab('badge')">🏅 バッジ</button>
     </div>
 
     <!-- パスワード保護のオーバーレイ -->
@@ -1367,6 +1441,15 @@
                 ログイン
             </button>
             <p id="passwordError" style="color:#c41e3a; margin-top:10px; font-size:14px;"></p>
+        </div>
+    </div>
+
+    <!-- バッジ用ダイアログ（追加 / 詳細・削除 / 対局記録時の役満選択）。エラーダイアログより下に出すため先に置く -->
+    <div id="bdgDialogOverlay" class="custom-alert-overlay">
+        <div class="custom-alert-box bdg-dialog-box">
+            <div class="custom-alert-header" id="bdgDialogTitle" style="background:#2d5016;"></div>
+            <div class="custom-alert-body bdg-dialog-body" id="bdgDialogBody"></div>
+            <div class="custom-alert-footer" id="bdgDialogFooter" style="display: flex; gap: 10px; justify-content: flex-end;"></div>
         </div>
     </div>
 
@@ -1496,6 +1579,272 @@
         let sections = []; // 節ごとのデータ [{season: 2026, games: [...]}]
         let currentSectionIndex = 0; // 現在表示中の節のインデックス（sections全体での位置）
         let rankingMode = 'today'; // 'today' / 'season' / 'total'
+
+        // =========================
+        // 役満バッジ（3人で同期。APIの badges キーに sections / schedule と一緒に保存）
+        // 1人につき同じ役満のバッジは1つだけ: [{ player: 0〜2, yaku: 'daisangen', date: 'YYYY-MM-DD' }]
+        // =========================
+        const BDG_NAMES = ['🛡️西方🛡️', '🐺高橋🐺', '🐲大田🐲'];
+        const BDG_YAKU = [
+            { id: 'kokushi',        name: '国士無双',       rank: 1 },
+            { id: 'suuankou',       name: '四暗刻',         rank: 1 },
+            { id: 'daisangen',      name: '大三元',         rank: 1 },
+            { id: 'shousuushii',    name: '小四喜',         rank: 1 },
+            { id: 'tsuuiisou',      name: '字一色',         rank: 1 },
+            { id: 'ryuuiisou',      name: '緑一色',         rank: 1 },
+            { id: 'chinroutou',     name: '清老頭',         rank: 1 },
+            { id: 'suukantsu',      name: '四槓子',         rank: 1 },
+            { id: 'chuuren',        name: '九蓮宝燈',       rank: 1 },
+            { id: 'tenhou',         name: '天和',           rank: 1 },
+            { id: 'chiihou',        name: '地和',           rank: 1 },
+            { id: 'kazoe',          name: '数え役満',       rank: 1 },
+            { id: 'kokushi13',      name: '国士無双十三面', rank: 2 },
+            { id: 'suuankou_tanki', name: '四暗刻単騎',     rank: 2 },
+            { id: 'daisuushii',     name: '大四喜',         rank: 2 },
+            { id: 'junsei_chuuren', name: '純正九蓮宝燈',   rank: 2 }
+        ];
+        let badges = [];
+        let bdgPendingAdds = [];     // まだサーバーに保存できていない追加
+        let bdgPendingRemoves = [];  // まだサーバーに保存できていない削除（'player:yaku'）
+        let bdgDlg = null;           // 開いているバッジダイアログの状態
+        let bdgServerWarned = false;
+
+        function bdgKey(b) { return `${b.player}:${b.yaku}`; }
+        function bdgYaku(id) { return BDG_YAKU.find(y => y.id === id); }
+        function bdgHas(player, yakuId) { return badges.some(b => b.player === player && b.yaku === yakuId); }
+        function bdgToday() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        function bdgDateLabel(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s || '') ? s.replace(/-/g, '/') : '不明'; }
+
+        function bdgNormalize(raw) {
+            const out = [];
+            const seen = new Set();
+            if (!Array.isArray(raw)) return out;
+            raw.forEach(b => {
+                if (!b || ![0, 1, 2].includes(b.player) || !bdgYaku(b.yaku)) return;
+                const k = bdgKey(b);
+                if (seen.has(k)) return;
+                seen.add(k);
+                out.push({ player: b.player, yaku: b.yaku, date: typeof b.date === 'string' ? b.date : '' });
+            });
+            return out;
+        }
+
+        // サーバーのバッジを取り込む（保存待ちの追加・削除は残す）
+        function bdgApplyServer(raw) {
+            let list = bdgNormalize(raw).filter(b => !bdgPendingRemoves.includes(bdgKey(b)));
+            bdgPendingAdds.forEach(b => {
+                if (!list.some(x => bdgKey(x) === bdgKey(b))) list.push(b);
+            });
+            badges = list;
+            renderBadges();
+        }
+
+        // 保存できた分を保存待ちから外す
+        function bdgClearPending(sentAdds, sentRemoves) {
+            bdgPendingAdds = bdgPendingAdds.filter(b => !sentAdds.includes(b));
+            bdgPendingRemoves = bdgPendingRemoves.filter(k => !sentRemoves.includes(k));
+        }
+
+        // バッジを追加（すでに持っている役満はスキップ）。追加できた件数を返す
+        function bdgQueueAdds(list) {
+            let added = 0;
+            (list || []).forEach(b => {
+                if (bdgHas(b.player, b.yaku)) return;
+                const badge = { player: b.player, yaku: b.yaku, date: b.date || bdgToday() };
+                bdgPendingRemoves = bdgPendingRemoves.filter(k => k !== bdgKey(badge));
+                bdgPendingAdds.push(badge);
+                badges.push(badge);
+                added++;
+            });
+            renderBadges();
+            return added;
+        }
+
+        // 最新を取得 → 自分の追加・削除だけ反映して保存（他の人の更新を消さないため）
+        async function bdgSave() {
+            try {
+                const latest = await nsFetchLatest();
+                if (Array.isArray(latest?.sections) && latest.sections.length > 0) {
+                    sections = normalizeSections(latest.sections);
+                    if (currentSectionIndex >= sections.length) currentSectionIndex = sections.length - 1;
+                }
+                nsApplyServerSchedule(latest?.schedule);
+                bdgApplyServer(latest?.badges);
+                const sentAdds = bdgPendingAdds.slice();
+                const sentRemoves = bdgPendingRemoves.slice();
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-access-token': API_TOKEN },
+                    body: JSON.stringify({ sections, schedule: nsSchedule, badges })
+                });
+                if (res.status !== 200) throw new Error('POST ' + res.status);
+                bdgClearPending(sentAdds, sentRemoves);
+
+                // サーバー（Workers）が badges キーを保存しているかの確認
+                const check = await nsFetchLatest();
+                if (!Array.isArray(check?.badges) && !bdgServerWarned) {
+                    bdgServerWarned = true;
+                    showDialog('サーバーがバッジを保存していません。\nWorkers側で badges キーも保存するように対応が必要です。', 'バッジ');
+                }
+            } catch (e) {
+                console.error('バッジの保存エラー', e);
+                showDialog('バッジの保存に失敗しました');
+            }
+        }
+
+        function renderBadges() {
+            const cols = document.getElementById('bdgCols');
+            if (!cols) return;
+            cols.innerHTML = [0, 1, 2].map(p => {
+                const mine = badges
+                    .filter(b => b.player === p)
+                    .map(b => ({ b, y: bdgYaku(b.yaku), order: BDG_YAKU.findIndex(y => y.id === b.yaku) }))
+                    .sort((a, b) => (b.y.rank - a.y.rank) || (a.order - b.order));
+                const chips = mine.map(({ b, y }) =>
+                    `<button type="button" class="bdg-chip rank${y.rank}" onclick="bdgOpenDetail(${p},'${b.yaku}')">${y.name}</button>`
+                ).join('');
+                return `<div class="bdg-col">
+                    <div class="bdg-pname">${BDG_NAMES[p]}</div>
+                    <div class="bdg-count"><b>${mine.length}</b> 種類</div>
+                    ${chips || '<div class="bdg-empty">まだなし</div>'}
+                </div>`;
+            }).join('');
+        }
+
+        // ---- ダイアログ共通 ----
+        function bdgShowDialog(title, bodyHtml, buttons) {
+            document.getElementById('bdgDialogTitle').textContent = title;
+            document.getElementById('bdgDialogBody').innerHTML = bodyHtml;
+            document.getElementById('bdgDialogFooter').innerHTML = buttons.map(b =>
+                `<button type="button" class="custom-alert-button" ${b.gray ? 'style="background:#999;"' : ''} onclick="${b.onclick}">${b.label}</button>`
+            ).join('');
+            document.getElementById('bdgDialogOverlay').style.display = 'flex';
+        }
+        function bdgCloseDialog() {
+            document.getElementById('bdgDialogOverlay').style.display = 'none';
+            bdgDlg = null;
+        }
+        function bdgSetError(msg) {
+            const el = document.getElementById('bdgError');
+            if (el) el.textContent = msg;
+        }
+
+        // 役満の選択肢。lockOwned=true なら獲得済みは選べない
+        function bdgPickGrid(player, selected, lockOwned) {
+            return [[1, '役満'], [2, 'ダブル役満']].map(([rank, label]) =>
+                `<div class="bdg-pick-label">${label}</div><div class="bdg-pick">` +
+                BDG_YAKU.filter(y => y.rank === rank).map(y => {
+                    const owned = player !== null && bdgHas(player, y.id);
+                    return `<button type="button" class="bdg-chip rank${rank}${selected.has(y.id) ? ' on' : ''}"` +
+                        `${owned && lockOwned ? ' disabled' : ''} onclick="bdgTogglePick(${player},'${y.id}',this)">` +
+                        `${y.name}${owned ? '<span class="bdg-owned">獲得済</span>' : ''}</button>`;
+                }).join('') + '</div>'
+            ).join('');
+        }
+        function bdgTogglePick(player, yakuId, el) {
+            if (!bdgDlg) return;
+            const set = bdgDlg.mode === 'game' ? bdgDlg.sel[player] : bdgDlg.sel;
+            if (set.has(yakuId)) set.delete(yakuId); else set.add(yakuId);
+            el.classList.toggle('on', set.has(yakuId));
+            bdgSetError('');
+        }
+
+        // ---- 手動で追加 ----
+        function bdgOpenAdd() {
+            bdgDlg = { mode: 'add', player: null, sel: new Set(), date: bdgToday() };
+            bdgRenderAdd();
+        }
+        function bdgRenderAdd() {
+            const d = bdgDlg;
+            const body =
+                `<div class="bdg-label">だれが</div>
+                <div class="bdg-who">${[0, 1, 2].map(p =>
+                    `<button type="button" class="${d.player === p ? 'on' : ''}" onclick="bdgSelectPlayer(${p})">${BDG_NAMES[p]}</button>`
+                ).join('')}</div>
+                <div class="bdg-label">どの役満（複数選択OK）</div>
+                ${bdgPickGrid(d.player, d.sel, true)}
+                <div class="bdg-label">獲得日</div>
+                <input type="date" class="bdg-date" id="bdgDate" value="${d.date}" onchange="bdgDlg.date = this.value">
+                <div class="bdg-error" id="bdgError"></div>`;
+            bdgShowDialog('バッジを追加', body, [
+                { label: 'キャンセル', gray: true, onclick: 'bdgCloseDialog()' },
+                { label: '追加する', onclick: 'bdgConfirmAdd()' }
+            ]);
+        }
+        function bdgSelectPlayer(p) {
+            const bodyEl = document.getElementById('bdgDialogBody');
+            const top = bodyEl.scrollTop;
+            bdgDlg.player = p;
+            // 選んだ人がすでに持っている役満は選択から外す
+            [...bdgDlg.sel].forEach(id => { if (bdgHas(p, id)) bdgDlg.sel.delete(id); });
+            bdgRenderAdd();
+            bodyEl.scrollTop = top;
+        }
+        function bdgConfirmAdd() {
+            const d = bdgDlg;
+            if (d.player === null) { bdgSetError('「だれが」を選んでください'); return; }
+            if (d.sel.size === 0) { bdgSetError('役満を選んでください'); return; }
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(d.date || '')) { bdgSetError('獲得日を入力してください'); return; }
+            const list = [...d.sel].map(yaku => ({ player: d.player, yaku, date: d.date }));
+            bdgCloseDialog();
+            if (bdgQueueAdds(list) > 0) bdgSave();
+        }
+
+        // ---- 詳細・削除 ----
+        function bdgOpenDetail(player, yakuId, confirming) {
+            const b = badges.find(x => x.player === player && x.yaku === yakuId);
+            if (!b) return;
+            const y = bdgYaku(yakuId);
+            bdgDlg = { mode: 'detail', player, yaku: yakuId };
+            const body = `<div class="bdg-detail">
+                <span class="bdg-chip rank${y.rank}">${y.name}</span>
+                <p>${players[player]}</p>
+                <p>獲得日: ${bdgDateLabel(b.date)}</p>
+                ${confirming ? '<p style="color:#c41e3a; font-weight:bold;">このバッジを削除しますか？</p>' : ''}
+            </div>`;
+            bdgShowDialog('バッジ', body, confirming
+                ? [{ label: 'キャンセル', gray: true, onclick: 'bdgCloseDialog()' },
+                   { label: '削除する', onclick: `bdgRemove(${player},'${yakuId}')` }]
+                : [{ label: '削除', gray: true, onclick: `bdgOpenDetail(${player},'${yakuId}',true)` },
+                   { label: '閉じる', onclick: 'bdgCloseDialog()' }]);
+        }
+        function bdgRemove(player, yakuId) {
+            const key = `${player}:${yakuId}`;
+            badges = badges.filter(b => bdgKey(b) !== key);
+            bdgPendingAdds = bdgPendingAdds.filter(b => bdgKey(b) !== key);
+            if (!bdgPendingRemoves.includes(key)) bdgPendingRemoves.push(key);
+            bdgCloseDialog();
+            renderBadges();
+            bdgSave();
+        }
+
+        // ---- 対局記録時: 役満の人にどの役満かを聞く ----
+        function bdgAskForGame(targets, onDone) {
+            bdgDlg = { mode: 'game', targets, sel: {}, onDone };
+            targets.forEach(p => { bdgDlg.sel[p] = new Set(); });
+            const body = targets.map(p =>
+                `<div class="bdg-label">${players[p]}</div>${bdgPickGrid(p, bdgDlg.sel[p], false)}`
+            ).join('') +
+                `<div class="bdg-note">初めての役満はバッジに追加されます（獲得済はそのまま）</div>
+                <div class="bdg-error" id="bdgError"></div>`;
+            bdgShowDialog('どの役満？（複数選択OK）', body, [
+                { label: 'キャンセル', gray: true, onclick: 'bdgCloseDialog()' },
+                { label: '記録する', onclick: 'bdgConfirmGame()' }
+            ]);
+        }
+        function bdgConfirmGame() {
+            const d = bdgDlg;
+            const missing = d.targets.find(p => d.sel[p].size === 0);
+            if (missing !== undefined) { bdgSetError(`${BDG_NAMES[missing]} の役満を選んでください`); return; }
+            const date = bdgToday();
+            const list = [];
+            d.targets.forEach(p => d.sel[p].forEach(yaku => list.push({ player: p, yaku, date })));
+            bdgCloseDialog();
+            d.onDone(list);
+        }
 
         // --- シーズン（年）管理 ---
         // 節は作成した年のシーズンに属し、節番号はシーズンごとに第1節から数える
@@ -1897,6 +2246,7 @@
                         console.log('データ取得成功:', data);
                         sections = normalizeSections(data?.sections);
                         nsApplyServerSchedule(data?.schedule);
+                        bdgApplyServer(data?.badges);
 
                         // 初回利用の場合は空なら第1節を作る
                         if (sections.length === 0) {
@@ -2227,6 +2577,24 @@
         </div>
     </div>
     </div>
+    <!-- ===== タブ: バッジ ===== -->
+    <div id="portal-tab-badge" style="display:none;">
+        <div class="bdg-wrap">
+            <div class="bdg-h1">🏅 役満バッジ 🏅</div>
+            <div class="bdg-panel">
+                <div class="bdg-panel-title">
+                    <span>獲得バッジ</span>
+                    <button type="button" class="bdg-add-btn" onclick="bdgOpenAdd()">＋ 追加</button>
+                </div>
+                <div class="bdg-cols" id="bdgCols"></div>
+                <div class="bdg-legend">
+                    <span><i style="background:#c39000"></i>役満</span>
+                    <span><i style="background:#00008b"></i>ダブル役満</span>
+                </div>
+                <div class="bdg-note">バッジをタップすると獲得日の確認・削除ができます</div>
+            </div>
+        </div>
+    </div>
     <!-- ===== タブ: 待牌チェッカー ===== -->
     <div id="portal-tab-checker" style="display:none;">
   <div class="container">
@@ -2405,6 +2773,7 @@
             const data = await res.json();
             sections = normalizeSections(data?.sections);
             nsApplyServerSchedule(data?.schedule);
+            bdgApplyServer(data?.badges);
 
             // ③ 初回利用の場合は空なら第1節を作る
             if (sections.length === 0) {
@@ -2425,21 +2794,26 @@
             try {
                 const latest = await nsFetchLatest();
                 nsApplyServerSchedule(latest?.schedule, true);
+                bdgApplyServer(latest?.badges);
             } catch (e) {
                 console.warn('次回日程の最新取得に失敗', e);
             }
+            const sentAdds = bdgPendingAdds.slice();
+            const sentRemoves = bdgPendingRemoves.slice();
             const res = await fetch(API_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "x-access-token": API_TOKEN
                 },
-                body: JSON.stringify({ sections, schedule: nsSchedule })
+                body: JSON.stringify({ sections, schedule: nsSchedule, badges })
             });
-        
+
             if (res.status !== 200) {
                 console.error("保存エラー", res.status);
                 alert("データ保存に失敗しました");
+            } else {
+                bdgClearPending(sentAdds, sentRemoves);
             }
         }
 
@@ -2693,12 +3067,25 @@
                 timestamp: Date.now()
             };
 
+            // 役満の人がいれば、どの役満かを聞いてバッジと連動（初めての役満だけ追加、獲得済はスキップ）
+            const yakumanPlayers = [0, 1, 2].filter(i => yakumanFlags[i] || doubleYakumanFlags[i] || tripleYakumanFlags[i]);
+            if (yakumanPlayers.length > 0) {
+                bdgAskForGame(yakumanPlayers, newBadges => commitGame(gameData, newBadges));
+                return;
+            }
+            commitGame(gameData, []);
+        }
+
+        // 対局を確定して保存（newBadges は saveData で一緒に保存される）
+        function commitGame(gameData, newBadges) {
+            bdgQueueAdds(newBadges);
+
             // 最新の節に追加
             if (sections.length === 0) {
                 sections.push(createSection());
             }
             sections[sections.length - 1].games.push(gameData);
-            
+
             saveData();
             
             // 最新の節を表示
@@ -3578,7 +3965,8 @@
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-access-token': API_TOKEN },
-                    body: JSON.stringify({ sections: latest.sections, schedule: merged })
+                    // バッジは触らずサーバーの値をそのまま返す
+                    body: JSON.stringify({ sections: latest.sections, schedule: merged, badges: bdgNormalize(latest.badges) })
                 });
                 if (res.status !== 200) throw new Error('POST ' + res.status);
             } catch (e) {
@@ -3704,7 +4092,8 @@
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-access-token': API_TOKEN },
-                    body: JSON.stringify({ sections, schedule: merged })
+                    // バッジは触らずサーバーの値をそのまま返す
+                    body: JSON.stringify({ sections, schedule: merged, badges: bdgNormalize(latest?.badges) })
                 });
                 if (res.status !== 200) throw new Error('POST ' + res.status);
                 // 保存中にさらにタップされていなければ保存待ちを解除
@@ -5488,7 +5877,7 @@
     <!-- ===== Portal タブ切替ロジック ===== -->
     <script>
         function switchPortalTab(name) {
-            const tabs = ['scoresheet', 'checker'];
+            const tabs = ['scoresheet', 'checker', 'badge'];
             tabs.forEach(t => {
                 const el = document.getElementById('portal-tab-' + t);
                 if (el) el.style.display = (t === name) ? '' : 'none';
