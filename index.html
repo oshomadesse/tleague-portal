@@ -1598,7 +1598,7 @@
         // 1人につき同じ役満のバッジは1つだけ: [{ player: 0〜2, yaku: 'daisangen' }]
         // =========================
         const BDG_NAMES = ['🛡️西方', '🐺高橋', '🐲大田'];
-        // 数え役満はバッジにしない（対局記録時は何も選ばずに記録すればバッジなし）
+        // 数え役満はバッジにしない（スコアシートでも役満チェックを入れない運用）
         const BDG_YAKU = [
             { id: 'kokushi',        name: '国士無双',       rank: 1 },
             { id: 'suuankou',       name: '四暗刻',         rank: 1 },
@@ -1831,7 +1831,7 @@
             const body = targets.map(p =>
                 `<div class="bdg-label">${players[p]}</div>${bdgPickGrid(p, bdgDlg.sel[p], false)}`
             ).join('') +
-                `<div class="bdg-note">初めての役満はバッジに追加されます（獲得済はそのまま）<br>数え役満は何も選ばずに「記録する」</div>
+                `<div class="bdg-note">初めての役満はバッジに追加されます（獲得済はそのまま）</div>
                 <div class="bdg-error" id="bdgError"></div>`;
             bdgShowDialog('どの役満？（複数選択OK）', body, [
                 { label: 'キャンセル', gray: true, onclick: 'bdgCloseDialog()' },
@@ -1840,6 +1840,8 @@
         }
         function bdgConfirmGame() {
             const d = bdgDlg;
+            const missing = d.targets.find(p => d.sel[p].size === 0);
+            if (missing !== undefined) { bdgSetError(`${BDG_NAMES[missing]} の役満を選んでください`); return; }
             const list = [];
             d.targets.forEach(p => d.sel[p].forEach(yaku => list.push({ player: p, yaku })));
             bdgCloseDialog();
