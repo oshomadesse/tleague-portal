@@ -882,7 +882,6 @@
         .bdg-legend span { display: inline-flex; align-items: center; gap: 4px; }
         .bdg-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
         .bdg-note { font-size: 11px; color: #555; text-align: center; margin-top: 6px; }
-        .bdg-opt-none { background: #666666; }
         /* ダイアログ内の選択ボタン（タップしやすい大きさ） */
         .bdg-opt {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1599,8 +1598,7 @@
         // 1人につき同じ役満のバッジは1つだけ: [{ player: 0〜2, yaku: 'daisangen' }]
         // =========================
         const BDG_NAMES = ['🛡️西方', '🐺高橋', '🐲大田'];
-        // 数え役満はバッジにしない（対局記録時の選択肢には「バッジなし」として出す）
-        const BDG_NO_BADGE = 'none';
+        // 数え役満はバッジにしない（対局記録時は何も選ばずに記録すればバッジなし）
         const BDG_YAKU = [
             { id: 'kokushi',        name: '国士無双',       rank: 1 },
             { id: 'suuankou',       name: '四暗刻',         rank: 1 },
@@ -1831,11 +1829,9 @@
             bdgDlg = { mode: 'game', targets, sel: {}, onDone };
             targets.forEach(p => { bdgDlg.sel[p] = new Set(); });
             const body = targets.map(p =>
-                `<div class="bdg-label">${players[p]}</div>${bdgPickGrid(p, bdgDlg.sel[p], false)}` +
-                `<div class="bdg-pick-label">その他</div><div class="bdg-pick">` +
-                `<button type="button" class="bdg-opt bdg-opt-none" onclick="bdgTogglePick(${p},'${BDG_NO_BADGE}',this)">数え役満<span class="bdg-owned">バッジなし</span></button></div>`
+                `<div class="bdg-label">${players[p]}</div>${bdgPickGrid(p, bdgDlg.sel[p], false)}`
             ).join('') +
-                `<div class="bdg-note">初めての役満はバッジに追加されます（獲得済はそのまま）</div>
+                `<div class="bdg-note">初めての役満はバッジに追加されます（獲得済はそのまま）<br>数え役満は何も選ばずに「記録する」</div>
                 <div class="bdg-error" id="bdgError"></div>`;
             bdgShowDialog('どの役満？（複数選択OK）', body, [
                 { label: 'キャンセル', gray: true, onclick: 'bdgCloseDialog()' },
@@ -1844,12 +1840,8 @@
         }
         function bdgConfirmGame() {
             const d = bdgDlg;
-            const missing = d.targets.find(p => d.sel[p].size === 0);
-            if (missing !== undefined) { bdgSetError(`${BDG_NAMES[missing]} の役満を選んでください`); return; }
             const list = [];
-            d.targets.forEach(p => d.sel[p].forEach(yaku => {
-                if (yaku !== BDG_NO_BADGE) list.push({ player: p, yaku });
-            }));
+            d.targets.forEach(p => d.sel[p].forEach(yaku => list.push({ player: p, yaku })));
             bdgCloseDialog();
             d.onDone(list);
         }
